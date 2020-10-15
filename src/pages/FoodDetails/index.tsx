@@ -96,10 +96,7 @@ const FoodDetails: React.FC = () => {
   useEffect(() => {
     async function loadFood(): Promise<void> {
       // Load a specific food with extras based on routeParams id
-      const [foodsResponse, favoritesResponse] = await Promise.all([
-        api.get<Food>(`/foods/${routeParams.id}`),
-        api.get<FavoriteFood>(`/favorites/${routeParams.id}`),
-      ]);
+      const foodsResponse = await api.get<Food>(`/foods/${routeParams.id}`);
 
       if (foodsResponse) {
         setFood({
@@ -115,9 +112,17 @@ const FoodDetails: React.FC = () => {
         setExtras(foodExtras);
       }
 
-      if (favoritesResponse) {
-        const favoriteExists = favoritesResponse.data;
-        setIsFavorite(!!favoriteExists);
+      try {
+        const favoritesResponse = await api.get<FavoriteFood>(
+          `/favorites/${routeParams.id}`,
+        );
+
+        if (favoritesResponse) {
+          const favoriteExists = favoritesResponse.data;
+          setIsFavorite(!!favoriteExists);
+        }
+      } catch (err) {
+        console.log(err);
       }
     }
 

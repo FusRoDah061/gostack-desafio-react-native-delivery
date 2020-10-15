@@ -44,8 +44,8 @@ interface Category {
 }
 
 interface GetFoodsParams {
-  category?: number;
-  name?: string;
+  category_like?: number;
+  name_like?: string;
 }
 
 const Dashboard: React.FC = () => {
@@ -69,19 +69,26 @@ const Dashboard: React.FC = () => {
       const params: GetFoodsParams = {};
 
       if (selectedCategory) {
-        params.category = selectedCategory;
+        params.category_like = selectedCategory;
       }
 
       if (searchValue) {
-        params.name = searchValue;
+        params.name_like = searchValue;
       }
 
-      const response = await api.get('/foods', {
+      const response = await api.get<Food[]>('/foods', {
         params,
       });
 
       if (response) {
-        setFoods(response.data);
+        const formattedFoods = response.data.map(food => {
+          return {
+            ...food,
+            formattedPrice: formatValue(food.price),
+          };
+        });
+
+        setFoods(formattedFoods);
       }
     }
 
